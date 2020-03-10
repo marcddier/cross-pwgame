@@ -3,15 +3,16 @@ import socketIO from "socket.io-client";
 import AskNickname from "./components/AskNickname";
 import MagicNumber from "./components/MagicNumber";
 
+const io = socketIO("http://localhost:3000");
+
 const App = () => {
   const [isGameStarted, setGameStarted] = useState(false);
-  const io = socketIO("http://localhost:3000");
 
   io.on("event::hello", () => {
     console.log("handshake");
   });
 
-  io.on("event::gameStarted", () => {
+  io.on("event::gameStart", () => {
     console.log("game started");
     setGameStarted(true);
   });
@@ -51,7 +52,7 @@ const App = () => {
       <div className="hero-body">
         <div className="container">
           <header className="bd-index-header">
-            {!isGameStarted ? <AskNickname io={io} /> : <MagicNumber />}
+            {!isGameStarted ? <AskNickname io={io} /> : <MagicNumber io={io} />}
           </header>
         </div>
       </div>

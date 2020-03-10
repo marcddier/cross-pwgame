@@ -10,7 +10,7 @@ const PORT = process.env.PORT;
 const app = express();
 const server = createServer(app);
 const io = socketIO(server);
-let players = [];
+let players: Player[] = [];
 
 let magicNumber = 0;
 
@@ -18,7 +18,7 @@ app.get("/", (_, res) => {
   res.send("hello fellows");
 });
 
-io.on("connection", socket => {
+io.on("connection", (socket: SocketIO.Socket) => {
   console.log("new connection");
   socket.emit("event::hello");
 
@@ -28,25 +28,39 @@ io.on("connection", socket => {
       return;
     }
 
-    players.push(payload);
+    let player: Player = {
+      nickname: payload.nickname,
+      socre: 0
+    } 
+    players.push(player);
     console.log("new name received: ", payload.nickname);
+    socket.nickname = payload.nickname
 
     if (players.length === 2) {
       io.emit("event::gameStart");
-      magicNumber = Math.random() * 1000;
+      magicNumber = generateMagicNumber();
     }
   });
 
   socket.on("event::magicNumber", payload => {
+    console.log(payload);
     let state = "";
-    if (payload.number > magicNumber) {
-      state = "higher"
-    }
     if (payload.number > magicNumber) {
       state = "lower"
     }
+    if (payload.number < magicNumber) {
+      state = "higher"
+    }
     if (payload.number == magicNumber) {
       state = "win"
+      io.emit("event::magicNumberWin", { winner: socket.nickname })
+      players.map((player: Player) => {
+        if (player.nickname == socket.nickname) {
+          player.socre += 1;
+        }
+      });
+      console.log(players);
+      magicNumber = generateMagicNumber();
     }
     socket.emit("event::magicNumberState", { state })
   })
@@ -55,3 +69,9 @@ io.on("connection", socket => {
 server.listen(PORT, () => {
   console.log("Server ready at ...");
 });
+
+const generateMagicNumber = () => {
+  const magicNumber = Math.round(Math.random() * 1000);
+  console.log(magicNumber);
+  return magicNumber;
+}
