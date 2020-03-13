@@ -7,4 +7,5 @@ declare namespace SocketIO {
 interface Player {
   nickname: string;
   socre: number;
+  socket?: SocketIO.Socket;
 }

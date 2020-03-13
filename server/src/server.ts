@@ -10,7 +10,17 @@ const PORT = process.env.PORT;
 const app = express();
 const server = createServer(app);
 const io = socketIO(server);
-let players: Player[] = [];
+
+let players: Player[];
+
+/*
+
+  TODO : multiple game at the same times to keep learning socket io and group
+
+  let players: [[string, Player[]]];
+  players = [[idGame, [player, player]], [idGame, [player, player]], [idGame, [player, player]], [idGame, [player, player]]]
+
+*/
 
 let magicNumber = 0;
 
@@ -30,8 +40,10 @@ io.on("connection", (socket: SocketIO.Socket) => {
 
     let player: Player = {
       nickname: payload.nickname,
-      socre: 0
-    } 
+      socre: 0,
+      socket
+    };
+
     players.push(player);
     console.log("new name received: ", payload.nickname);
     socket.nickname = payload.nickname
@@ -43,7 +55,6 @@ io.on("connection", (socket: SocketIO.Socket) => {
   });
 
   socket.on("event::magicNumber", payload => {
-    console.log(payload);
     let state = "";
     if (payload.number > magicNumber) {
       state = "lower"
@@ -52,14 +63,16 @@ io.on("connection", (socket: SocketIO.Socket) => {
       state = "higher"
     }
     if (payload.number == magicNumber) {
-      state = "win"
-      io.emit("event::magicNumberWin", { winner: socket.nickname })
+      state = "win";
+      players.forEach(player => {
+        player.socket?.emit("event::magicNumberWin", { winner: socket.nickname });
+      });
+      // io.emit("event::magicNumberWin", { winner: socket.nickname })
       players.map((player: Player) => {
         if (player.nickname == socket.nickname) {
           player.socre += 1;
         }
       });
-      console.log(players);
       magicNumber = generateMagicNumber();
     }
     socket.emit("event::magicNumberState", { state })

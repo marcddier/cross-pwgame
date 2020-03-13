@@ -11,6 +11,7 @@ const MagicNumber = ({ io }) => {
 
   const sendMagicNumber = () => {
     io.emit("event::magicNumber", { number });
+    setWinner('');
   }
 
   useEffect(() => {
@@ -21,13 +22,13 @@ const MagicNumber = ({ io }) => {
 
     io.on("event::magicNumberWin", payload => {
       console.log(payload);
-      setWinner(payload.winner);
+      setWinner(payload.winner+' won the last set');
     });
   }, []);
 
   return (
     <div className="field">
-      <h1>Magic Number </h1>
+      <h1>Magic Number (0 - 1000)</h1>
       <div className="control">
         <input className="input" onChange={handleMagicNumber} value={number} />
       </div>
