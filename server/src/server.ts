@@ -11,7 +11,7 @@ const app = express();
 const server = createServer(app);
 const io = socketIO(server);
 
-let players: Player[];
+let players: Player[] = [];
 
 /*
 
@@ -23,10 +23,6 @@ let players: Player[];
 */
 
 let magicNumber = 0;
-
-app.get("/", (_, res) => {
-  res.send("hello fellows");
-});
 
 io.on("connection", (socket: SocketIO.Socket) => {
   console.log("new connection");
@@ -80,7 +76,7 @@ io.on("connection", (socket: SocketIO.Socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log("Server ready at ...");
+  console.log(`Server ready at ${PORT}`);
 });
 
 const generateMagicNumber = () => {

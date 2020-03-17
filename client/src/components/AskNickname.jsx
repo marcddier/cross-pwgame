@@ -1,11 +1,10 @@
 import React, { useState } from "react";
+import useInput from "../hooks/useInput.ts";
 
 const AskNickname = ({ io }) => {
-  const [nickname, setNickname] = useState("");
+  // const [nickname, setNickname] = useState("");
 
-  const handleNickname = event => {
-    setNickname(event.target.value);
-  };
+  const [nickname, bindNickname, resetNickname] = useInput('');
 
   const sendNickname = () => {
     io.emit("event::initialize", { nickname });
@@ -14,7 +13,7 @@ const AskNickname = ({ io }) => {
   return (
     <div className="field">
       <div className="control">
-        <input className="input" onChange={handleNickname} value={nickname} />
+        <input className="input" {...bindNickname} />
       </div>
       <div className="control">
         <a className="button is-info" onClick={sendNickname}>
